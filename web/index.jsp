@@ -101,7 +101,20 @@ footer {
       <p>Please enter the information you are looking for below:</p>
       
       <form>
-          <p>Age:</p>
+
+          <p>Country:</p>
+          <select>
+              <option>N/A</option>
+              <option>USA</option>
+              <option>France</option>
+              <option>Italy</option>
+              <option></option>
+              <option></option>
+              <option></option>
+              <option></option>
+          </select>
+          
+          <p>Providence/State:</p>
           <select>
               <option>N/A</option>
               <option>Under 10</option>
@@ -114,18 +127,6 @@ footer {
               <option>71-80</option>
               <option>Over 80</option>
           </select>
-          
-          <p>Country:</p>
-          <select>
-              <option>N/A</option>
-              <option>USA</option>
-              <option>France</option>
-              <option>Italy</option>
-              <option></option>
-              <option></option>
-              <option></option>
-              <option></option>
-          </select>
 
           <p>Month:</p>
           <select>
@@ -136,10 +137,9 @@ footer {
               <option>April</option>
           </select>
           
-          <p>State:</p>
+          <p>Status:</p>
           <select>
               <option>N/A</option>
-              <option>Hospitalized</option>
               <option>Active</option>
               <option>Recovered</option>
               <option>Deceased</option>
