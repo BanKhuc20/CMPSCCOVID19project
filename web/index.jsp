@@ -15,6 +15,9 @@ Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
 
 <!-- This connects to the zingchart website to process the javascript -->
 <script type="text/javascript" src="https://cdn.zingchart.com/zingchart.min.js"></script>  
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <!-- Generates the layout using CSS -->
 <style>
@@ -87,6 +90,52 @@ footer {
 }
 </style>
 
+<style>
+        #custom-handle-0,
+        #custom-handle-1 {
+            width: 75px;
+            height: 1.6em;
+            top: 50%;
+            margin-top: -.8em;
+            text-align: center;
+            line-height: 1.6em;
+            font-family: Verdana, Arial, sans-serif;
+            font-size: 12px;
+        }
+    </style>
+    
+    <script>
+        $(function () {
+            var minDate = new Date('2020-01-22');
+            var maxDate = new Date('2020-3-23');
+            var valueHi = new Date(new Date().toLocaleDateString());
+            var valueLo = new Date(valueHi.getTime() - 56 * 86400000);
+            var dateMin = new Date(minDate.getTime() + minDate.getTimezoneOffset() * 60 * 1000);
+            var dateMax = new Date(maxDate.getTime() + maxDate.getTimezoneOffset() * 60 * 1000);
+            var handle0 = $("#custom-handle-0");
+            var handle1 = $("#custom-handle-1");
+
+            $("#slider-range").slider({
+                range: true,
+                min: dateMin.getTime() / 1000,
+                max: dateMax.getTime() / 1000,
+                step: 86400,
+                values: [dateMin.getTime() / 1000, valueHi.getTime() / 1000],
+                create: function () {
+                    handle0.text(dateMin.toLocaleDateString());
+                    handle1.text(valueHi.toLocaleDateString());
+                },
+
+                slide: function (event, ui) {
+                    $("#amount").val((new Date(ui.values[0] * 1000).toDateString()) + " - " + (new Date(ui.values[1] * 1000)).toDateString());
+                    handle0.text(new Date(ui.values[0] * 1000).toLocaleDateString());
+                    handle1.text(new Date(ui.values[1] * 1000).toLocaleDateString());
+
+                }
+            });
+            $("#amount").val((new Date($("#slider-range").slider("values", 0) * 1000).toDateString()) + " - " + (new Date($("#slider-range").slider("values", 1) * 1000)).toDateString());
+        });
+    </script>
 
 <script>
 function populate(country,providence){
@@ -342,16 +391,10 @@ function populate(country,providence){
           <!--This is determined by the Country-->
           <p>Providence/State:</p>
           <select id="providence" name="providence" ></select>
-
-          <p>Month:</p>
-          <select>
-              <option>N/A</option>
-              <option>January</option>
-              <option>February</option>
-              <option>March</option>
-              <option>April</option>
-          </select>
+          </br>
           
+          
+
           <p>Status:</p>
           <select>
               <option>N/A</option>
@@ -361,7 +404,20 @@ function populate(country,providence){
           </select>
           
           <input type="submit" value="Submit Form" />
+          
+          
       </form>
+      
+
+      <p>
+        <label for="amount">Date range:</label>
+        <input type="text" id="amount" style="border: 0; color: #f6931f; font-weight: bold;" size="30" />
+      </p>
+      <div id="slider-range">
+        <div id="custom-handle-0" class="ui-slider-handle"></div>
+        <div id="custom-handle-1" class="ui-slider-handle"></div>
+      </div>
+
       <%
           
       %>
@@ -434,6 +490,7 @@ function populate(country,providence){
       data: myConfig,
     });
   </script>
+  
 </footer>
 
 </body>
