@@ -7,6 +7,8 @@ CSS code modified from: https://www.w3schools.com/html/html_layout.asp on 4/18/2
 Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
 -->
 
+<%@page import="java.util.Date"%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,7 +71,7 @@ article {
 
 form {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
 
     }
 
@@ -104,7 +106,7 @@ footer {
         }
     </style>
     
-    <script>
+    <script type="text/javascript">
         $(function () {
             var minDate = new Date('2020-01-22');
             var maxDate = new Date('2020-3-23');
@@ -114,6 +116,7 @@ footer {
             var dateMax = new Date(maxDate.getTime() + maxDate.getTimezoneOffset() * 60 * 1000);
             var handle0 = $("#custom-handle-0");
             var handle1 = $("#custom-handle-1");
+           
 
             $("#slider-range").slider({
                 range: true,
@@ -127,13 +130,13 @@ footer {
                 },
 
                 slide: function (event, ui) {
-                    $("#amount").val((new Date(ui.values[0] * 1000).toDateString()) + " - " + (new Date(ui.values[1] * 1000)).toDateString());
+                    $("#date").val((new Date(ui.values[0] * 1000).toDateString()) + " - " + (new Date(ui.values[1] * 1000)).toDateString());
                     handle0.text(new Date(ui.values[0] * 1000).toLocaleDateString());
                     handle1.text(new Date(ui.values[1] * 1000).toLocaleDateString());
 
                 }
             });
-            $("#amount").val((new Date($("#slider-range").slider("values", 0) * 1000).toDateString()) + " - " + (new Date($("#slider-range").slider("values", 1) * 1000)).toDateString());
+            $("#date").val((new Date($("#slider-range").slider("values", 0) * 1000).toDateString()) + " - " + (new Date($("#slider-range").slider("values", 1) * 1000)).toDateString());
         });
     </script>
 
@@ -200,7 +203,21 @@ function populate(country,providence){
   <nav>
       <p>Please enter the information you are looking for below:</p>
       
-      <form>
+      <br/>
+    
+      <form name="inputData" action="index.jsp" method="POST">
+      <p>
+        <label for="date">Date range:</label>
+        <input type="text" name="date" id="date" style="border: 0; color: #f6931f; font-weight: bold;" size="30" />
+      </p>
+      <div id="slider-range">
+        <div id="custom-handle-0" class="ui-slider-handle"></div>
+        <div id="custom-handle-1" class="ui-slider-handle"></div>
+      </div>
+      
+      <br/>
+      
+      
 
           <p>Country:</p>
           <select id="country" name="country" onChange="populate(this.id, 'providence')">
@@ -387,16 +404,17 @@ function populate(country,providence){
               
               
           </select>
+          
+          <br/>
     
           <!--This is determined by the Country-->
           <p>Providence/State:</p>
           <select id="providence" name="providence" ></select>
-          </br>
           
-          
+          <br/>
 
           <p>Status:</p>
-          <select>
+          <select id="status" name="status">
               <option>N/A</option>
               <option>Active</option>
               <option>Recovered</option>
@@ -409,17 +427,22 @@ function populate(country,providence){
       </form>
       
 
-      <p>
-        <label for="amount">Date range:</label>
-        <input type="text" id="amount" style="border: 0; color: #f6931f; font-weight: bold;" size="30" />
-      </p>
-      <div id="slider-range">
-        <div id="custom-handle-0" class="ui-slider-handle"></div>
-        <div id="custom-handle-1" class="ui-slider-handle"></div>
-      </div>
-
       <%
-          
+
+
+        String country = request.getParameter("country");
+        String providence = request.getParameter("providence");
+        String status = request.getParameter("status");  
+        String date = request.getParameter("date");
+        
+        String[] dateList = date.split(" - ");
+        
+        Date dateStart = new Date(dateList[0]);
+        
+        Date dateEnd = new Date(dateList[1]);
+
+        out.println("<p> " + dateStart + " " + dateEnd + " </p>");
+        // Data = graphData(country, providence, dateStart, dateEnd, status)
       %>
   </nav>
   
