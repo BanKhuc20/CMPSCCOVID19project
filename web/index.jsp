@@ -1,7 +1,7 @@
 <!--
 Created By: Palmer Pesta
-Date Last Modified: 4/19/2020
-Version: 1.1
+Date Last Modified: 4/20/2020
+Version: 1.2
 Purpose: To display and input data from the user about Covid-19
 CSS code modified from: https://www.w3schools.com/html/html_layout.asp on 4/18/2020
 Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
