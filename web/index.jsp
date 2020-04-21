@@ -435,14 +435,16 @@ function populate(country,providence){
         String status = request.getParameter("status");  
         String date = request.getParameter("date");
         
-        String[] dateList = date.split(" - ");
+        if (date != null){
+            String[] dateList = date.split(" - ");
+      
+            Date dateStart = new Date(dateList[0]);
         
-        Date dateStart = new Date(dateList[0]);
+            Date dateEnd = new Date(dateList[1]);
         
-        Date dateEnd = new Date(dateList[1]);
-
-        out.println("<p> " + dateStart + " " + dateEnd + " </p>");
-        // Data = graphData(country, providence, dateStart, dateEnd, status)
+            out.println("<p> " + country + " " + providence + " " + dateStart + " " + dateEnd + " " + status + " </p>");
+            // Data = graphData(country, providence, dateStart, dateEnd, status)
+        }
       %>
   </nav>
   
