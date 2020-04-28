@@ -8,6 +8,14 @@ Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
 -->
 
 <%@page import="java.util.Date"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.time.ZoneId"%>
+<%@page import="java.time.ZoneId"%>
+<%@page import="java.time.LocalDate"%>
+<%@page import="java.util.Calendar"%>
+<%@page import="java.util.Calendar"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.text.SimpleDateFormat"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -429,11 +437,12 @@ function populate(country,providence){
 
       <%
 
-
         String country = request.getParameter("country");
         String providence = request.getParameter("providence");
         String status = request.getParameter("status");  
         String date = request.getParameter("date");
+        ArrayList graphNumData = new ArrayList();
+        ArrayList listOfDates = new ArrayList();
         
         if (date != null){
             String[] dateList = date.split(" - ");
@@ -441,9 +450,27 @@ function populate(country,providence){
             Date dateStart = new Date(dateList[0]);
         
             Date dateEnd = new Date(dateList[1]);
+            
+            graphNumData.add(40);
+            
+            graphNumData.add(41);
+            
+         
+ 
+            LocalDate start1 = dateStart.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate end2 = dateEnd.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+
+            for (LocalDate date2 = start1; date2.isBefore(end2) || date2.isEqual(end2); date2 = date2.plusDays(1)) {
+                listOfDates.add(date2.toString().substring(5,10));
+                
+            }
         
-            out.println("<p> " + country + " " + providence + " " + dateStart + " " + dateEnd + " " + status + " </p>");
-            // Data = graphData(country, providence, dateStart, dateEnd, status)
+            //out.println("<p> " + country + " " + providence + " " + dateStart + " " + dateEnd + " " + status + "\n" + graphNumData.get(0) + "\n" + listOfDates.get(0) + " </p>");
+            // graphNumData = graphData(country, providence, dateStart, dateEnd, status)
+            
+            
+
         }
       %>
   </nav>
@@ -461,11 +488,25 @@ function populate(country,providence){
     <div id="myChart"></div>
 
   <script>
+    var graphDataArray = [];
+    var dateArray = [];
+    
+    <% for (int i=0; i<graphNumData.size(); i++) { %>
+        graphDataArray[<%= i %>] = <%= graphNumData.get(i) %>; 
+    <% } %>
+
+       
+    //-----------------------------------------------------------------------------------------------
+    <% for (int i=0; i<listOfDates.size(); i++) { %>
+        dateArray[<%= i %>] = '<%= listOfDates.get(i) %>'; 
+    <% } %>
+    
     let myConfig = {
       type: 'bar',
       title: {
-        text: 'Covid-19 Data Generated from John Hopkins',
+        text: "Covid-19 Data From John Hopkins",
         fontSize: 24,
+        color: '#5d7d9a'
       },
       legend: {
         draggable: true,
@@ -474,7 +515,7 @@ function populate(country,providence){
         // Set scale label
         label: { text: 'Date Range' },
         // Convert text on scale indices
-        labels: [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        labels: dateArray
       },
       scaleY: {
         // Scale label with unicode character
@@ -488,23 +529,15 @@ function populate(country,providence){
           method: 'ANIMATION_STRONG_EASE_OUT',
           sequence: 'ANIMATION_BY_NODE',
           speed: 275,
+          
         }
       },
       series: [
         {
           // Plot 1 values, linear data
-          values: [23,20,27,29,25,17,15],
-          text: 'Week 1',
-        },
-        {
-          // Plot 2 values, linear data
-          values: [35,42,33,49,35,47,35],
-          text: 'Week 2'
-        },
-        {
-          // Plot 2 values, linear data
-          values: [15,22,13,33,44,27,31],
-          text: 'Week 3'
+          values: graphDataArray,
+          text: 'Data',
+          backgroundColor: '#000080'
         }
       ]
     };
