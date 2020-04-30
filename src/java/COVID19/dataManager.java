@@ -140,43 +140,42 @@ public class dataManager {
             Connection con = DriverManager.getConnection(url,user,password);     
                 
             Statement stmt = con.createStatement();
-
-            stmt.execute("DROP TABLE IF EXISTS confirmed;\n" +
-                    "DROP TABLE IF EXISTS recovered" +
-                    "DROP TABLE IF EXISTS deaths;");
             
-            stmt.execute("CREATE TABLE confirmed AS"
-                    + "Province/State varchar(255)"
-                    + "Country/Region varchar(255)"
-                    + "Lat varchar(255)"
-                    + "Long varchar(255)");
-            
+            String columns = "";
             for(int i = 4; i < confirmed.get(0).size(); i++){
-                stmt.execute("ALTER TABLE confirmed"
-                        + "ADD " + confirmed.get(0).get(i) + " int");
+                columns = columns + ",confirmed_" + (i - 3) + " int";
             }
             
-            stmt.execute("CREATE TABLE recovered AS"
-                    + "Province/State varchar(255)"
-                    + "Country/Region varchar(255)"
-                    + "Lat varchar(255)"
-                    + "Long varchar(255)");
+            stmt.execute("CREATE TABLE confirmed ("
+                    + "Province varchar(255),"
+                    + "Country varchar(255),"
+                    + "Lat varchar(255),"
+                    + "Long varchar(255)"
+                    + columns + ")");
             
-            for(int i = 4; i < recovered.get(0).size(); i++){
-                stmt.execute("ALTER TABLE recovered"
-                        + "ADD " + recovered.get(0).get(i) + " int");
+            columns = "";            
+            for(int i = 4; i < confirmed.get(0).size(); i++){
+                columns = columns + ",recovered_" + (i - 3) + " int";
             }
             
-            stmt.execute("CREATE TABLE deaths AS"
-                    + "Province/State varchar(255)"
-                    + "Country/Region varchar(255)"
-                    + "Lat varchar(255)"
-                    + "Long varchar(255)");
+            stmt.execute("CREATE TABLE recovered ("
+                    + "Province varchar(255),"
+                    + "Country varchar(255),"
+                    + "Lat varchar(255),"
+                    + "Long varchar(255)"
+                    + columns + ")");
             
-            for(int i = 4; i < deaths.get(0).size(); i++){
-                stmt.execute("ALTER TABLE deaths"
-                        + "ADD " + deaths.get(0).get(i) + " int");
+            columns = "";
+            for(int i = 4; i < confirmed.get(0).size(); i++){
+                columns = columns + ",deaths_" + (i - 3) + " int";
             }
+            stmt.execute("CREATE TABLE deaths ("
+                    + "Province varchar(255),"
+                    + "Country varchar(255),"
+                    + "Lat varchar(255),"
+                    + "Long varchar(255)"
+                    + columns + ")");
+
             stmt.close();
         
             con.close();
