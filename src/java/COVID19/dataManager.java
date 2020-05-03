@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import static java.util.concurrent.TimeUnit.DAYS;
 /**
  * @author vorpa
  */
@@ -30,6 +31,7 @@ public class dataManager {
     private String url;
     private String user;
     private String password;
+    private Date tableDate;
     
     /**
      *
@@ -40,6 +42,7 @@ public class dataManager {
         deathsGlobal = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv";
         recoveredGlobal = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
         currentDir = System.getProperty("user.dir");
+        tableDate = new Date(2020,1,22);
         
         getCSV('c');
         getCSV('d');
@@ -126,7 +129,7 @@ public class dataManager {
         try (BufferedReader br = new BufferedReader(new FileReader("data" + dataType + ".csv"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] values = line.split(",");
+                String[] values = line.split(",(?! )");
                 data.add(Arrays.asList(values));
             }
         }
@@ -153,8 +156,27 @@ public class dataManager {
                     + "Long varchar(255)"
                     + columns + ")");
             
+            String rowEntry = "";
+            for(int i = 1; i < confirmed.size(); i++){
+                rowEntry = "";
+                for(int j = 0; j < 4; j++){                    
+                    rowEntry = rowEntry + "'" + confirmed.get(i).get(j).replaceAll("'", "''") + "',";
+                }
+                
+                for(int j = 4; j < confirmed.get(i).size(); j++){
+                    rowEntry = rowEntry +  confirmed.get(i).get(j) + ",";
+                }
+                
+                rowEntry = rowEntry.replaceAll(",$", "");
+
+                stmt.execute("INSERT INTO confirmed"
+                        + " VALUES (" + rowEntry + ")");
+            }
+            
+            System.out.print("Confirmed Table Updated");
+            
             columns = "";            
-            for(int i = 4; i < confirmed.get(0).size(); i++){
+            for(int i = 4; i < recovered.get(0).size(); i++){
                 columns = columns + ",recovered_" + (i - 3) + " int";
             }
             
@@ -165,17 +187,56 @@ public class dataManager {
                     + "Long varchar(255)"
                     + columns + ")");
             
+            rowEntry = "";
+            for(int i = 1; i < recovered.size(); i++){
+                rowEntry = "";
+                for(int j = 0; j < 4; j++){                    
+                    rowEntry = rowEntry + "'" + recovered.get(i).get(j).replaceAll("'", "''") + "',";
+                }
+                
+                for(int j = 4; j < recovered.get(i).size(); j++){
+                    rowEntry = rowEntry +  confirmed.get(i).get(j) + ",";
+                }
+                
+                rowEntry = rowEntry.replaceAll(",$", "");
+
+                stmt.execute("INSERT INTO recovered"
+                        + " VALUES (" + rowEntry + ")");
+            }
+
+            System.out.print("Recovered Table Updated");
+            
             columns = "";
-            for(int i = 4; i < confirmed.get(0).size(); i++){
+            for(int i = 4; i < deaths.get(0).size(); i++){
                 columns = columns + ",deaths_" + (i - 3) + " int";
             }
+            
             stmt.execute("CREATE TABLE deaths ("
                     + "Province varchar(255),"
                     + "Country varchar(255),"
                     + "Lat varchar(255),"
                     + "Long varchar(255)"
                     + columns + ")");
+            
+            rowEntry = "";
+            for(int i = 1; i < deaths.size(); i++){
+                rowEntry = "";
+                for(int j = 0; j < 4; j++){                    
+                    rowEntry = rowEntry + "'" + deaths.get(i).get(j).replaceAll("'", "''") + "',";
+                }
+                
+                for(int j = 4; j < deaths.get(i).size(); j++){
+                    rowEntry = rowEntry +  deaths.get(i).get(j) + ",";
+                }
+                
+                rowEntry = rowEntry.replaceAll(",$", "");
 
+                stmt.execute("INSERT INTO deaths"
+                        + " VALUES (" + rowEntry + ")");
+            }
+            
+            System.out.print("Deaths Table Updated");
+            
             stmt.close();
         
             con.close();
@@ -187,7 +248,7 @@ public class dataManager {
         
     }
     
-    private List<List<Integer>> searchCountry(String termCountry){
+    public List<List<Integer>> searchCountry(String termCountry, String status){
         List<List<Integer>> output = new ArrayList();
         List<Integer> row = new ArrayList();
         try
@@ -196,8 +257,8 @@ public class dataManager {
                 
             Statement stmt = con.createStatement();
 
-            ResultSet rs = stmt.executeQuery("SELECT * FROM Customers"
-                    + "WHERE country='"+ termCountry + "';");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM " + status.toLowerCase()
+                    + " WHERE country='"+ termCountry + "'");
             
             ResultSetMetaData rsmd = rs.getMetaData();
             int numberOfColumns = rsmd.getColumnCount();
@@ -220,18 +281,62 @@ public class dataManager {
             System.out.println(e);
         }
         
-        return(output);
+        return output;
     }
     
-    private ArrayList searchProv(String termCountry, String termProv){
-        List<String> output = new ArrayList();
+    public ArrayList searchProv(String termCountry, String termProv, String status){
+        List<Integer> output = new ArrayList();
+        try
+        {
+            Connection con = DriverManager.getConnection(url,user,password);     
+                
+            Statement stmt = con.createStatement();
 
+            ResultSet rs = stmt.executeQuery("SELECT * FROM " + status.toLowerCase()
+                    + " WHERE country='"+ termCountry + "' AND province='" + termProv + "'");
+            
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numberOfColumns = rsmd.getColumnCount();
+            
+            while (rs.next()){
+                for (int i = 5; i <= numberOfColumns; i++)
+                {
+                    output.add(rs.getInt(i));
+                }
+            }
+            
+            stmt.close();
+        
+            con.close();
+        }
+        catch (Exception e) 
+        {
+            System.out.println(e);
+        }
+        
         return (ArrayList) output;
     }
     
-    public ArrayList searchDay(String termCountry, String termProv, Date startDate, Date endDate){
-        List<String> output = new ArrayList();
+    public List<Integer> searchDay(String termCountry, String termProv, Date startDate, Date endDate, String status){
+        List<Integer> results = new ArrayList();
+        List<Integer> output = new ArrayList();
+        
+        results = searchProv(termCountry, termProv, status);
+        
+        long startDiff = tableDate.getTime() - startDate.getTime();
+        
+        int dropStart = Math.round(Math.abs(startDiff / (1000*60*60*24)));
 
-        return (ArrayList) output;
+        long endDiff = tableDate.getTime() - endDate.getTime();
+        
+        int dropEnd = Math.round(Math.abs(endDiff / (1000*60*60*24)));
+        
+        System.out.println(dropStart + "," + dropEnd);
+        System.out.println(results.subList(dropStart, dropEnd));
+        
+        if(!results.isEmpty()){
+            output = results.subList(dropStart, dropEnd);
+        }
+        return output;
     }
 }
