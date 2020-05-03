@@ -6,6 +6,9 @@
 package COVID19;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -21,6 +24,13 @@ public class testClass {
         dataManager test = new dataManager();
         
         test.populateDatabase();
+        
+        List<Integer> output;
+        Date startDate = new Date(2020, 2, 24);
+        Date endDate = new Date(2020, 3, 15);
+        
+        output = test.searchDay("United Kingdom", "", startDate, endDate, "confirmed");
+        System.out.println(output);
     }
     
 }
