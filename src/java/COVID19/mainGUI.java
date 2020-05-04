@@ -71,10 +71,8 @@ public class mainGUI extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new mainGUI().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new mainGUI().setVisible(true);
         });
     }
 
