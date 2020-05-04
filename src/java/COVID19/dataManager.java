@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import static java.util.concurrent.TimeUnit.DAYS;
+
 /**
  * @author vorpa
  */
@@ -44,13 +44,13 @@ public class dataManager {
         currentDir = System.getProperty("user.dir");
         tableDate = new Date(2020,1,22);
         
-        getCSV('c');
-        getCSV('d');
-        getCSV('r');
-        
         confirmed = generateCSVArray('c');
         deaths = generateCSVArray('d');
         recovered = generateCSVArray('r');
+        
+        getCSV('c');
+        getCSV('d');
+        getCSV('r');
         
         password = null;
         user = null;
@@ -136,6 +136,10 @@ public class dataManager {
         return (ArrayList) data;
     }
     
+    /**
+     * 
+     * Populates the SQL database with information form csv files. Database should be named COVID19data. Should generally be run before anything is done...
+     */
     public void populateDatabase(){
         
         try
@@ -248,6 +252,12 @@ public class dataManager {
         
     }
     
+    /**
+     * Searches database for country with a specific name and status. Very unspecific and should not be used usually
+     * @param termCountry - country being searched
+     * @param status - status of the patients being searched
+     * @return List<List<Integer>> containing all matching rows.
+     */
     public List<List<Integer>> searchCountry(String termCountry, String status){
         List<List<Integer>> output = new ArrayList();
         List<Integer> row = new ArrayList();
@@ -284,6 +294,14 @@ public class dataManager {
         return output;
     }
     
+    /**
+     * Searches database for matching country and province/state. Some countries may not have provinces/states. You should use and empty string for 
+     * termProv when searching for them
+     * @param termCountry
+     * @param termProv
+     * @param status
+     * @return ArrayList containing all of the confirmed/deaths/recovered for every day. First index corresponds with 1/22/2020 and iterates upwards until current date.
+     */
     public ArrayList searchProv(String termCountry, String termProv, String status){
         List<Integer> output = new ArrayList();
         try
@@ -317,6 +335,15 @@ public class dataManager {
         return (ArrayList) output;
     }
     
+    /**
+     * Searches a range of a values corresponding to a series of dates
+     * @param termCountry
+     * @param termProv
+     * @param startDate
+     * @param endDate
+     * @param status
+     * @return List<Integer> containing the values from start date to end date of a specific province
+     */
     public List<Integer> searchDay(String termCountry, String termProv, Date startDate, Date endDate, String status){
         List<Integer> results = new ArrayList();
         List<Integer> output = new ArrayList();
@@ -330,9 +357,6 @@ public class dataManager {
         long endDiff = tableDate.getTime() - endDate.getTime();
         
         int dropEnd = Math.round(Math.abs(endDiff / (1000*60*60*24)));
-        
-        System.out.println(dropStart + "," + dropEnd);
-        System.out.println(results.subList(dropStart, dropEnd));
         
         if(!results.isEmpty()){
             output = results.subList(dropStart, dropEnd);
