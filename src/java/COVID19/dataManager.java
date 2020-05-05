@@ -24,9 +24,9 @@ public class dataManager {
     private final String deathsGlobal;
     private final String recoveredGlobal;
     private final String currentDir;
-    private final List<List<String>> confirmed;
-    private final List<List<String>> deaths;
-    private final List<List<String>> recovered;
+    private List<List<String>> confirmed;
+    private List<List<String>> deaths;
+    private List<List<String>> recovered;
     private String className;
     private String url;
     private String user;
@@ -43,15 +43,7 @@ public class dataManager {
         recoveredGlobal = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
         currentDir = System.getProperty("user.dir");
         tableDate = new Date(2020,1,22);
-        
-        confirmed = generateCSVArray('c');
-        deaths = generateCSVArray('d');
-        recovered = generateCSVArray('r');
-        
-        getCSV('c');
-        getCSV('d');
-        getCSV('r');
-        
+
         password = null;
         user = null;
         url = null;
@@ -98,14 +90,14 @@ public class dataManager {
      *                              'r' - loads confirmed recovered;
      */
     private void getCSV(char dataType){
-        String url;
+        String localurl;
         switch(dataType){
-            case 'c': url = confirmedGlobal; break;
-            case 'd': url = deathsGlobal; break;
-            case 'r': url = recoveredGlobal; break;
-            default: url = confirmedGlobal; break;
+            case 'c': localurl = confirmedGlobal; break;
+            case 'd': localurl = deathsGlobal; break;
+            case 'r': localurl = recoveredGlobal; break;
+            default: localurl = confirmedGlobal; break;
         }
-        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+        try (BufferedInputStream in = new BufferedInputStream(new URL(localurl).openStream());
                 FileOutputStream fileOutputStream = new FileOutputStream(currentDir + "/data" + dataType + ".csv")) {
                     byte dataBuffer[] = new byte[1024];
                     int bytesRead;
@@ -125,14 +117,17 @@ public class dataManager {
      */
     private ArrayList generateCSVArray(char dataType) throws FileNotFoundException, IOException{
         @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-        List<List<String>> data = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader("data" + dataType + ".csv"))) {
+        List<List<String>> data = new ArrayList();
+        try{
+            BufferedReader br = new BufferedReader(new FileReader("data" + dataType + ".csv"));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",(?! )");
                 data.add(Arrays.asList(values));
             }
         }
+        catch(Exception e){
+            }
         return (ArrayList) data;
     }
     
@@ -141,6 +136,19 @@ public class dataManager {
      * Populates the SQL database with information form csv files. Database should be named COVID19data. Should generally be run before anything is done...
      */
     public void populateDatabase(){
+        getCSV('c');
+        getCSV('d');
+        getCSV('r');
+        try
+        {
+            confirmed = generateCSVArray('c');
+            deaths = generateCSVArray('d');
+            recovered = generateCSVArray('r');
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+
         
         try
         {
@@ -153,6 +161,22 @@ public class dataManager {
                 columns = columns + ",confirmed_" + (i - 3) + " int";
             }
             
+            
+            DatabaseMetaData dbm = con.getMetaData();
+            // deletes tables if they exists to update them
+            ResultSet tables = dbm.getTables(null, null, "confirmed", null);
+            if (tables.next()) {
+              stmt.execute("DROP TABLES confirmed");
+            }
+            tables = dbm.getTables(null, null, "recovered", null);
+            if (tables.next()) {
+              stmt.execute("DROP TABLES recovered");
+            }
+            tables = dbm.getTables(null, null, "deaths", null);
+            if (tables.next()) {
+              stmt.execute("DROP TABLES deaths");
+            }
+
             stmt.execute("CREATE TABLE confirmed ("
                     + "Province varchar(255),"
                     + "Country varchar(255),"
