@@ -1,12 +1,14 @@
+
 <!--
-Created By: Palmer Pesta
-Date Last Modified: 4/20/2020
-Version: 1.2
+@author Palmer Pesta
+Date Last Modified: 5/5/2020
+@version 1.3
 Purpose: To display and input data from the user about Covid-19
 CSS code modified from: https://www.w3schools.com/html/html_layout.asp on 4/18/2020
 Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
 -->
-
+<!--Imports different libraries -->
+<%@page import="java.util.List"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.time.ZoneId"%>
@@ -16,6 +18,8 @@ Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
 <%@page import="java.util.Calendar"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.text.SimpleDateFormat"%>
+<%@page import="COVID19.dataManager"%>
+<%@page import="COVID19.controller"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,19 +30,17 @@ Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
 <!-- This connects to the zingchart website to process the javascript -->
 <script type="text/javascript" src="https://cdn.zingchart.com/zingchart.min.js"></script>  
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
-    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <!-- Generates the layout using CSS -->
 <style>
 * {
   box-sizing: border-box;
 }
-
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
-
 /* Style the header */
 header {
   background-color: #000080;
@@ -47,13 +49,11 @@ header {
   font-size: 35px;
   color: white;
 }
-
 /* Container for flexboxes */
 section {
   display: -webkit-flex;
   display: flex;
 }
-
 /* Style the navigation menu */
 nav {
   -webkit-flex: 1;
@@ -62,13 +62,11 @@ nav {
   background: #ccc;
   padding: 20px;
 }
-
 /* Style the list inside the menu */
 nav ul {
   list-style-type: none;
   padding: 0;
 }
-
 /* Style the content */
 article {
   background-color: #f1f1f1;
@@ -76,13 +74,10 @@ article {
   text-align: center;
   
 }
-
 form {
         display: flex;
         flex-direction: column;
-
     }
-
 /* Style the footer */
 footer {
   background-color: #000080;
@@ -90,7 +85,6 @@ footer {
   text-align: center;
   color: white;
 }
-
 /* Responsive layout - makes the menu and the content (inside the section) sit on top of each other instead of next to each other */
 @media (max-width: 600px) {
   section {
@@ -99,7 +93,7 @@ footer {
   }
 }
 </style>
-
+<!--Styles the date slider -->
 <style>
         #custom-handle-0,
         #custom-handle-1 {
@@ -113,11 +107,11 @@ footer {
             font-size: 12px;
         }
     </style>
-    
+<!--This creates the ranges and receives the values from the date slider --> 
     <script type="text/javascript">
         $(function () {
             var minDate = new Date('2020-01-22');
-            var maxDate = new Date('2020-3-23');
+            var maxDate = new Date('2020-4-27');
             var valueHi = new Date(new Date().toLocaleDateString());
             var valueLo = new Date(valueHi.getTime() - 56 * 86400000);
             var dateMin = new Date(minDate.getTime() + minDate.getTimezoneOffset() * 60 * 1000);
@@ -125,7 +119,6 @@ footer {
             var handle0 = $("#custom-handle-0");
             var handle1 = $("#custom-handle-1");
            
-
             $("#slider-range").slider({
                 range: true,
                 min: dateMin.getTime() / 1000,
@@ -136,58 +129,52 @@ footer {
                     handle0.text(dateMin.toLocaleDateString());
                     handle1.text(valueHi.toLocaleDateString());
                 },
-
                 slide: function (event, ui) {
                     $("#date").val((new Date(ui.values[0] * 1000).toDateString()) + " - " + (new Date(ui.values[1] * 1000)).toDateString());
                     handle0.text(new Date(ui.values[0] * 1000).toLocaleDateString());
                     handle1.text(new Date(ui.values[1] * 1000).toLocaleDateString());
-
                 }
             });
             $("#date").val((new Date($("#slider-range").slider("values", 0) * 1000).toDateString()) + " - " + (new Date($("#slider-range").slider("values", 1) * 1000)).toDateString());
         });
     </script>
-
+<!--Creates a combobox based on the chosen country -->
 <script>
 function populate(country,providence){
     var country = document.getElementById(country);
     var providence = document.getElementById(providence);
     providence.innerHTML = "";
     
-    if(country.value == "Australia"){
-        var optionArray = ["N/A", "Austrailian Capital Territory", "New South Wales", "Nothern Territory", "Queensland", "South Australia", "Tasmania", "Victoria", "Western Australia"];
+    if(country.value === "Australia"){
+        var optionArray = ["", "Austrailian Capital Territory", "New South Wales", "Nothern Territory", "Queensland", "South Australia", "Tasmania", "Victoria", "Western Australia"];
     } 
     
-    else if(country.value == "Canada"){
-         var optionArray = ["N/A", "Alberta", "British Columbia", "Grand Princess", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Northwest Territories", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"];
+    else if(country.value === "Canada"){
+         var optionArray = ["", "Alberta", "British Columbia", "Grand Princess", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Northwest Territories", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"];
     }
     
-    else if(country.value == "China"){
-        var optionArray = ["N/A", "Anhui", "Beijing", "Chongqing", "Fujian", "Gansu", "Guangdong", "Guangxi", "Guizhou", "Hainan", "Hebei", "Heilongjiang", "Henan", "Hong Kong", "Hubei", "Hunan", "Inner Mongolia", "Jiangsu", "Jiangxi", "Jilin", "Liaoning", "Macau", "Ningxia", "Qinghai", "Shaanxi", "Shandong", "Shanghai", "Shanxi", "Sichuan", "Tianjin", "Tibet", "Xinjiang", "Yunnan", "Zhejiang"];
+    else if(country.value === "China"){
+        var optionArray = ["", "Anhui", "Beijing", "Chongqing", "Fujian", "Gansu", "Guangdong", "Guangxi", "Guizhou", "Hainan", "Hebei", "Heilongjiang", "Henan", "Hong Kong", "Hubei", "Hunan", "Inner Mongolia", "Jiangsu", "Jiangxi", "Jilin", "Liaoning", "Macau", "Ningxia", "Qinghai", "Shaanxi", "Shandong", "Shanghai", "Shanxi", "Sichuan", "Tianjin", "Tibet", "Xinjiang", "Yunnan", "Zhejiang"];
     }
     
-    else if(country.value == "Denmark"){
-         var optionArray = ["Denmark", "Faroe Islands", "Greenland"];
+    else if(country.value === "Denmark"){
+         var optionArray = ["", "Faroe Islands", "Greenland"];
     }
     
-    else if(country.value == "France"){
-         var optionArray = ["France", "French Guiana", "French Polynesia", "Guadeloupe", "Mayotte", "New Caledonia", "Reunion", "Saint Barthelemy", "St Martin"];
+    else if(country.value === "France"){
+         var optionArray = ["", "French Guiana", "French Polynesia", "Guadeloupe", "Mayotte", "New Caledonia", "Reunion", "Saint Barthelemy", "St Martin"];
     }
     
-    else if(country.value == "Netherlands"){
-         var optionArray = ["Netherlands", "Aruba", "Curacao", "Sint Maarten"];
+    else if(country.value === "Netherlands"){
+         var optionArray = ["", "Aruba", "Curacao", "Sint Maarten"];
     }
     
-    else if(country.value == "US"){
-        var optionArray = ["N/A", "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montanna", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolinia", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "United States Virgin Islands", "Utah", "Vermount", "Virginia", "Washingtion", "West Virginia", "Wisconsin", "Wyoming"];
-    }
-    
-    else if(country.value == "United Kingdom"){
-         var optionArray = ["United Kingdom", "Bermuda", "Cayman Islands", "Channel Islands", "Gibraltar", "Isle of Man", "Montserrat"];
+    else if(country.value === "United Kingdom"){
+         var optionArray = ["", "Bermuda", "Cayman Islands", "Channel Islands", "Gibraltar", "Isle of Man", "Montserrat"];
     }
     
     else{
-        var optionArray =["N/A"];
+        var optionArray =[""];
     }
     for(var option in optionArray){
         var state = optionArray[option];
@@ -207,17 +194,18 @@ function populate(country,providence){
 <header>Covid-19 Data Search</header>
 
 <section>
-    
+    <!--Information is displayed to and inputted by the user-->
   <nav>
       <p>Please enter the information you are looking for below:</p>
       
       <br/>
     
-      <form name="inputData" action="index.jsp" method="POST">
+      <form action ="graphOutput.jsp" >
       <p>
         <label for="date">Date range:</label>
         <input type="text" name="date" id="date" style="border: 0; color: #f6931f; font-weight: bold;" size="30" />
       </p>
+      <!--This is the slider -->
       <div id="slider-range">
         <div id="custom-handle-0" class="ui-slider-handle"></div>
         <div id="custom-handle-1" class="ui-slider-handle"></div>
@@ -226,7 +214,7 @@ function populate(country,providence){
       <br/>
       
       
-
+<!--User provides a country -->
           <p>Country:</p>
           <select id="country" name="country" onChange="populate(this.id, 'providence')">
               <option>N/A</option>
@@ -428,56 +416,18 @@ function populate(country,providence){
               <option>Recovered</option>
               <option>Deceased</option>
           </select>
-          
-          <input type="submit" value="Submit Form" />
+          <!--Submit button -->
+          <input action="add" name="Submit" type="submit" value="Submit"  />
           
           
       </form>
       
 
-      <%
-
-        String country = request.getParameter("country");
-        String providence = request.getParameter("providence");
-        String status = request.getParameter("status");  
-        String date = request.getParameter("date");
-        ArrayList graphNumData = new ArrayList();
-        ArrayList listOfDates = new ArrayList();
-        
-        if (date != null){
-            String[] dateList = date.split(" - ");
-      
-            Date dateStart = new Date(dateList[0]);
-        
-            Date dateEnd = new Date(dateList[1]);
-            
-            graphNumData.add(40);
-            
-            graphNumData.add(41);
-            
-         
- 
-            LocalDate start1 = dateStart.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate end2 = dateEnd.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-
-            for (LocalDate date2 = start1; date2.isBefore(end2) || date2.isEqual(end2); date2 = date2.plusDays(1)) {
-                listOfDates.add(date2.toString().substring(5,10));
-                
-            }
-        
-            //out.println("<p> " + country + " " + providence + " " + dateStart + " " + dateEnd + " " + status + "\n" + graphNumData.get(0) + "\n" + listOfDates.get(0) + " </p>");
-            // graphNumData = graphData(country, providence, dateStart, dateEnd, status)
-            
-            
-
-        }
-      %>
   </nav>
-  
-  
+
   
   <article>
+      <!--Corona virus image found at unsplash.com -->
       <img src="corona.jpg" width="400" height="225">
       
   </article>
@@ -485,69 +435,7 @@ function populate(country,providence){
 </section>
 
 <footer>
-    <div id="myChart"></div>
-
-  <script>
-    var graphDataArray = [];
-    var dateArray = [];
-    
-    <% for (int i=0; i<graphNumData.size(); i++) { %>
-        graphDataArray[<%= i %>] = <%= graphNumData.get(i) %>; 
-    <% } %>
-
-       
-    //-----------------------------------------------------------------------------------------------
-    <% for (int i=0; i<listOfDates.size(); i++) { %>
-        dateArray[<%= i %>] = '<%= listOfDates.get(i) %>'; 
-    <% } %>
-    
-    let myConfig = {
-      type: 'bar',
-      title: {
-        text: "Covid-19 Data From John Hopkins",
-        fontSize: 24,
-        color: '#5d7d9a'
-      },
-      legend: {
-        draggable: true,
-      },
-      scaleX: {
-        // Set scale label
-        label: { text: 'Date Range' },
-        // Convert text on scale indices
-        labels: dateArray
-      },
-      scaleY: {
-        // Scale label with unicode character
-        label: { text: 'Number of Cases' }
-      },
-      plot: {
-        // Animation docs here:
-        // https://www.zingchart.com/docs/tutorials/styling/animation#effect
-        animation: {
-          effect: 'ANIMATION_EXPAND_BOTTOM',
-          method: 'ANIMATION_STRONG_EASE_OUT',
-          sequence: 'ANIMATION_BY_NODE',
-          speed: 275,
-          
-        }
-      },
-      series: [
-        {
-          // Plot 1 values, linear data
-          values: graphDataArray,
-          text: 'Data',
-          backgroundColor: '#000080'
-        }
-      ]
-    };
-
-    // Render Method[3]
-    zingchart.render({
-      id: 'myChart',
-      data: myConfig,
-    });
-  </script>
+   
   
 </footer>
 
