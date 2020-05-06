@@ -1,8 +1,7 @@
-
 <!--
-Created By: Palmer Pesta
+@author Palmer Pesta
 Date Last Modified: 5/5/2020
-Version: 1.2
+@version 1.2
 Purpose: To display the data of the Corona Virus
 CSS code modified from: https://www.w3schools.com/html/html_layout.asp on 4/18/2020
 Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
@@ -14,6 +13,8 @@ Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
 <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
+<%@page import="COVID19.dataGatherer"%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -27,9 +28,12 @@ Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
 
          <div id="myChart"></div>
         
+        
+         
          <%
-             ArrayList graphData = (ArrayList)request.getAttribute("graphData"); // Recieves variable from controller file
-             ArrayList dates = (ArrayList)request.getAttribute("dates"); // Recieves variable from controller file
+              // Recieves variable from controller file
+             ArrayList dataPoints = (ArrayList)request.getAttribute("data"); // Recieves data points from controller
+             ArrayList dateList = (ArrayList)request.getAttribute("dateList"); // Recieves correspnding dates from controller
              
              ArrayList graphNumData = new ArrayList(); // Hard codes data points due to graphData and dates being null
              graphNumData.add(40);
@@ -42,7 +46,7 @@ Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
              graphNumData.add(30);
              
              
-             ArrayList listOfDates = new ArrayList();
+             ArrayList listOfDates = new ArrayList(); // Hard code Dates
              listOfDates.add("01-01");
              listOfDates.add("01-02");
              listOfDates.add("01-03");
@@ -54,6 +58,8 @@ Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
          %>
 
          <!--This graphs the datapoints -->
+
+
   <script>
     var graphDataArray = [];
     var dateArray = [];

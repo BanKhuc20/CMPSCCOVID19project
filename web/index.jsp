@@ -1,8 +1,8 @@
 
 <!--
-Created By: Palmer Pesta
+@author Palmer Pesta
 Date Last Modified: 5/5/2020
-Version: 1.3
+@version 1.3
 Purpose: To display and input data from the user about Covid-19
 CSS code modified from: https://www.w3schools.com/html/html_layout.asp on 4/18/2020
 Javascript code modified from: https://blog.zingchart.com/jsp-chart-example/
@@ -200,7 +200,7 @@ function populate(country,providence){
       
       <br/>
     
-      <form action ="graphOutput.jsp"   method="POST">
+      <form action ="graphOutput.jsp" >
       <p>
         <label for="date">Date range:</label>
         <input type="text" name="date" id="date" style="border: 0; color: #f6931f; font-weight: bold;" size="30" />
@@ -417,7 +417,7 @@ function populate(country,providence){
               <option>Deceased</option>
           </select>
           <!--Submit button -->
-          <input action="add" type="submit" value="Submit"  />
+          <input action="add" name="Submit" type="submit" value="Submit"  />
           
           
       </form>
